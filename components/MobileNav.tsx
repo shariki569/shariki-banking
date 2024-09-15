@@ -14,6 +14,7 @@ import Link from "next/link";
 import { sidebarLinks } from "@/constants";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import Footer from "./Footer";
 
 const MobileNav = ({ user }: MobileNavProps) => {
   const pathname = usePathname();
@@ -73,20 +74,23 @@ const MobileNav = ({ user }: MobileNavProps) => {
                           />
 
                           <p
-                            className={cn("text-16 font-semibold text-black-2", {
-                              "text-white": isActive,
-                            })}
+                            className={cn(
+                              "text-16 font-semibold text-black-2",
+                              {
+                                "text-white": isActive,
+                              }
+                            )}
                           >
                             {item.label}
                           </p>
                         </Link>
                       </SheetClose>
                     );
-                  })};
-                  USER
+                  })}
+                  ; USER
                 </nav>
               </SheetClose>
-              FOOTER
+              <Footer user={user} type="mobile"/>
             </div>
           </nav>
         </SheetContent>
