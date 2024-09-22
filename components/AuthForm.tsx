@@ -22,58 +22,68 @@ import { Loader2 } from "lucide-react";
 import SignUp from "@/app/(auth)/sign-up/page";
 import { useRouter } from "next/navigation";
 import { signIn, signUp } from "@/lib/actions/users.actions";
+import PlaidLink from "./PlaidLink";
 
 const AuthForm = ({ type }: { type: string }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const formSchema = authFormSchema(type);
-  
+
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       password: "",
-     
     },
   });
 
   // 2. Define a submit handler.
-  const onSubmit = async (data: z.infer<typeof 
-    formSchema>) => {
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     setIsLoading(true);
     try {
-       //signup with appwrite & create plaid token
+      //signup with appwrite & create plaid token
 
-       if (type === "sign-up") { 
-       
-        const newUser = await signUp(data);
-  
-        setUser(newUser)
-       }
-
-       if (type === "sign-in") { 
-        const res = await signIn ({
+      if (type === "sign-up") {
+        const userData = {
+          firstName: data.firstName!,
+          lastName: data.lastName!,
+          address1: data.address1!,
+          city: data.city!,
+          state: data.state!,
+          postalCode: data.postalCode!,
+          dateOfBirth: data.dateOfBirth!,
+          ssn: data.ssn!,
           email: data.email,
           password: data.password,
-        })
+        };
 
-        if(res) router.push("/")
-       }
-        //signup with appwrite & create plaid token
+        const newUser = await signUp(userData);
+
+        setUser(newUser);
+      }
+
+      if (type === "sign-in") {
+        const res = await signIn({
+          email: data.email,
+          password: data.password,
+        });
+
+        if (res) router.push("/");
+      }
+      //signup with appwrite & create plaid token
     } catch (error) {
-      console.log(error)
+      console.log(error);
     } finally {
       setIsLoading(false);
     }
-  }
+  };
   return (
     <section className="auth-form">
       <header className="flex flex-col gap-5 md:gap-8">
-        {" "}
         <Link href="/" className="cursor-pointer flex items-center gap-1">
           <Image
             src="/icons/logo.svg"
@@ -97,7 +107,9 @@ const AuthForm = ({ type }: { type: string }) => {
         </div>
       </header>
       {user ? (
-        <div className="flex flex-col gap-4">{/* PLaid Link */}</div>
+        <div className="flex flex-col gap-4">
+          <PlaidLink user={user} variant="primary" />
+        </div>
       ) : (
         <>
           <Form {...form}>
@@ -155,7 +167,7 @@ const AuthForm = ({ type }: { type: string }) => {
                       control={form.control}
                       name="ssn"
                       label="SSN"
-                      placeholder="Example: 123-45-6789"
+                      placeholder="Example: 1234"
                     />
                   </div>
                 </>
@@ -193,7 +205,7 @@ const AuthForm = ({ type }: { type: string }) => {
                 : "Already have an account?"}
             </p>
             <Link
-              className="form-link" 
+              className="form-link"
               href={type === "sign-in" ? "/sign-up" : "/sign-in"}
             >
               {type === "sign-in" ? "Sign Up" : "Sign In"}
